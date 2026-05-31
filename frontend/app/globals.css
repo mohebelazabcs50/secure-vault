@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 20% 98%;
+    --foreground: 240 10% 3.9%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+  }
+
+  body {
+    @apply antialiased font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300;
+    background: radial-gradient(circle at 20% 20%, rgba(10, 132, 255, 0.04), transparent),
+                radial-gradient(circle at 80% 80%, rgba(94, 92, 230, 0.04), transparent),
+                #F5F5F7;
+  }
+
+  body.dark {
+    background: radial-gradient(circle at 10% 10%, rgba(94, 92, 230, 0.08), transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(186, 85, 211, 0.05), transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(10, 132, 255, 0.05), transparent 50%),
+                #050507;
+  }
+}
+
+/* Custom Glassmorphic Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+.dark .glass-panel {
+  background: rgba(22, 21, 27, 0.35);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Subtly brighter glass panels for modals and highlights */
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.07);
+}
+
+.dark .glass-panel-elevated {
+  background: rgba(26, 25, 32, 0.55);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Glass input fields */
+.glass-input {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  @apply rounded-xl px-4 py-3 outline-none transition-all duration-200 text-sm focus:border-ios-blue focus:ring-1 focus:ring-ios-blue/50 dark:bg-white/[0.04] dark:border-white/10 dark:focus:border-ios-blue;
+}
+
+/* Custom reflections */
+.glass-reflection {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-reflection::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    30deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  transform: rotate(30deg);
+  pointer-events: none;
+  transition: transform 0.6s ease;
+}
+
+.glass-reflection:hover::after {
+  transform: translate(25%, 25%) rotate(30deg);
+}
+
+/* Apple iOS Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Chrome autofill styling fix for glassmorphic design */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: inherit !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.1) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: inherit;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.4) inset !important;
+}

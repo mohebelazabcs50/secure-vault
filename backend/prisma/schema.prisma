@@ -1,0 +1,122 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ActivityAction {
+  LOGIN
+  LOGOUT
+  VAULT_ADD
+  VAULT_DELETE
+  VAULT_EDIT
+  MASTER_PASSWORD_CHANGE
+  2FA_ENABLE
+  2FA_DISABLE
+  EXPORT
+  DELETE_ACCOUNT
+}
+
+model User {
+  id                 String            @id @default(uuid())
+  email              String            @unique
+  username           String
+  masterPasswordHash String
+  isEmailVerified    Boolean           @default(false)
+  verificationToken  String?
+  resetToken         String?
+  encryptedUserKey   String            // Base64 encrypted user key
+  userKeyIv          String            // IV used to encrypt user key
+  userKeyAuthTag     String            // AuthTag used to encrypt user key
+  userKeySalt        String            // Salt used to derive key from master password
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  twoFactorSecret    TwoFactorSecret?
+  vaultItems         VaultItem[]
+  sessions           Session[]
+  refreshTokens      RefreshToken[]
+  activityLogs       ActivityLog[]
+
+  @@index([email])
+}
+
+model TwoFactorSecret {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secret      String   // Encrypted TOTP secret
+  secretIv    String   // IV for encrypted TOTP secret
+  secretTag   String   // Auth tag for encrypted TOTP secret
+  qrCode      String   @db.Text
+  backupCodes String   @db.Text // Encrypted backup codes
+  isEnabled   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VaultItem {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  websiteName       String
+  url               String
+  username          String
+  email             String
+  encryptedPassword String   // AES-256-GCM ciphertext
+  iv                String   // AES-256-GCM IV
+  authTag           String   // AES-256-GCM AuthTag
+  notes             String?  @db.Text
+  category          String   // e.g., "Social Media", "Banking", "Work"
+  securityScore     Int      // 0-100 calculated using zxcvbn strength
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@index([userId, category])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model ActivityLog {
+  id        String         @id @default(uuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    ActivityAction
+  ipAddress String?
+  device    String?
+  details   String?        @db.Text // JSON string with extra details (e.g. OS, Browser, modified items)
+  createdAt DateTime       @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
